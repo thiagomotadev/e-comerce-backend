@@ -10,7 +10,7 @@ import br.com.e_comerce.entities.user.User;
 import br.com.e_comerce.repositories.UserRepository;
 
 @Service
-public class UserService implements IUserService {
+public class UserService {
 
     @Autowired
     UserRepository userRepository;
