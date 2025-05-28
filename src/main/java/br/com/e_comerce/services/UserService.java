@@ -17,8 +17,8 @@ public class UserService {
 
     public ResponseUserDto registerUser(RegisterUserDto request) {
 
-        if (request.password().equals(request.comfirmPassword())) {
-            throw new RuntimeException("This email already exists.");
+        if (!request.password().equals(request.confirmPassword())) {
+            throw new RuntimeException("The passwords not is equals.");
         }
 
         var user = new User(
