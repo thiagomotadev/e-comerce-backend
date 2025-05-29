@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User {
     
-    public User(String name, String email, String password, Role user) {
+    public User(String name, String email, String password, Role role) {
         this.name = name;
         this.email = email;
         this.password = password;
