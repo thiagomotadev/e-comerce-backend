@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.e_comerce.dto.RegisterUserDto;
 import br.com.e_comerce.dto.ResponseUserDto;
-import br.com.e_comerce.services.UserService;
+import br.com.e_comerce.services.AuthSerice;
 
 @RestController
-@RequestMapping("/users")
-public class UserController {
+@RequestMapping("/auth")
+public class AuthController {
 
     @Autowired
-    UserService userService;
+    AuthSerice userService;
 
     @PostMapping("/register")
     public ResponseEntity<ResponseUserDto> register(@RequestBody RegisterUserDto request) {
-        var result = this.userService.registerUser(request);
+        var result = this.userService.register(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
