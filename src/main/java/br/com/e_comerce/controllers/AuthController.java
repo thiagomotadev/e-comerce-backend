@@ -32,9 +32,8 @@ public class AuthController {
     AuthenticationManager authenticationManager;
 
     @PostMapping("register")
-    public ResponseEntity<ResponseUserDto> register(@RequestBody RegisterUserDto request) {
+    public ResponseEntity<ResponseUserDto> register(@RequestBody @Valid RegisterUserDto request) {
         var result = this.userService.register(request);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
