@@ -39,4 +39,11 @@ public class GlobalExceptionHandler {
         error.put("Message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ResponseEntity<Map<String, String>> handleCategoryExists(CategoryAlreadyExistsException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("mensagem", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
 }
