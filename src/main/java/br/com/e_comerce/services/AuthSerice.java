@@ -3,25 +3,32 @@ package br.com.e_comerce.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import br.com.e_comerce.dto.RegisterUserDto;
 import br.com.e_comerce.dto.ResponseUserDto;
 import br.com.e_comerce.entities.enums.Role;
 import br.com.e_comerce.entities.user.User;
 import br.com.e_comerce.repositories.UserRepository;
 
+import java.util.Arrays;
+
 @Service
 public class AuthSerice {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     public ResponseUserDto register(RegisterUserDto request) {
 
         if (!request.password().equals(request.confirmPassword())) {
-            throw new RuntimeException("The passwords not is equals.");
+            throw new RuntimeException("As senhas não coincidem.");
+        }
+
+        if (!isEmailDomainValid(request.email())) {
+            throw new RuntimeException("Domínio de e-mail inválido. Verifique se escreveu corretamente.");
         }
 
         String hashedPassword = passwordEncoder.encode(request.password());
@@ -41,4 +48,12 @@ public class AuthSerice {
                 userSaved.getCreatedAt());
     }
 
+    private boolean isEmailDomainValid(String email) {
+        String[] acceptedDomains = {
+                "gmail.com", "hotmail.com", "outlook.com", "yahoo.com"
+        };
+
+        return Arrays.stream(acceptedDomains)
+                .anyMatch(domain -> email.toLowerCase().endsWith("@" + domain));
+    }
 }
