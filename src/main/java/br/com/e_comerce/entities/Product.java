@@ -1,6 +1,5 @@
 package br.com.e_comerce.entities;
 
-import br.com.e_comerce.entities.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
