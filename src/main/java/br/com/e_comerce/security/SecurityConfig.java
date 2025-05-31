@@ -22,6 +22,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/register", "/auth/login", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")   // Protege POST /products para admin
+                        .requestMatchers(HttpMethod.GET, "/products").permitAll()        // Libera GET /products para todos
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
