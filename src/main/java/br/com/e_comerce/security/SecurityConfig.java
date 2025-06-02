@@ -24,6 +24,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/categories").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")   // Protege POST /products para admin
                         .requestMatchers(HttpMethod.GET, "/products").permitAll()        // Libera GET /products para todos
+                        .requestMatchers(HttpMethod.POST, "/orders").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/orders/**").authenticated()
+
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,6 +1,7 @@
 package br.com.e_comerce.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,5 +56,10 @@ public class AuthSerice {
 
         return Arrays.stream(acceptedDomains)
                 .anyMatch(domain -> email.toLowerCase().endsWith("@" + domain));
+    }
+
+
+    public User getAuthenticatedUser() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
