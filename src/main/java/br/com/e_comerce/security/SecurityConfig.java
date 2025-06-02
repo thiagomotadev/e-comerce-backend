@@ -27,6 +27,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/products").permitAll()        // Libera GET /products para todos
                         .requestMatchers(HttpMethod.POST, "/orders").authenticated()
                         .requestMatchers(HttpMethod.GET, "/orders/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/orders/admin/summary").hasRole("ADMIN")
 
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
