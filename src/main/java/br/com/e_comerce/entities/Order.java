@@ -1,5 +1,6 @@
 package br.com.e_comerce.entities;
 
+import br.com.e_comerce.entities.enums.OrderStatus;
 import br.com.e_comerce.entities.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "orders")
 public class Order {
 
     @Id
@@ -25,6 +27,9 @@ public class Order {
     private BigDecimal total;
 
     private String paymentMethod;
+
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
