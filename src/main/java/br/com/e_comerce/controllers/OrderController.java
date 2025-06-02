@@ -1,5 +1,6 @@
 package br.com.e_comerce.controllers;
 
+import br.com.e_comerce.dto.AdminOrderSummaryDto;
 import br.com.e_comerce.dto.CreateOrderRequestDto;
 import br.com.e_comerce.dto.OrderResponseDto;
 import br.com.e_comerce.dto.OrderSummaryDto;
@@ -34,10 +35,20 @@ public class OrderController {
      * Retorna o histórico de pedidos do usuário autenticado.
      * @return Lista de pedidos com dados resumidos.
      */
-    @GetMapping
+    @GetMapping("/user/summary")
     public ResponseEntity<List<OrderSummaryDto>> getOrderHistory() {
         List<OrderSummaryDto> history = orderService.getUserOrderHistory();
         return ResponseEntity.ok(history);
+    }
+
+     /**
+     * Retorna o histórico de pedidos dos usuários (apenas para admin).
+     */
+    @GetMapping("/admin/summary")
+    public ResponseEntity<List<AdminOrderSummaryDto>> getAdminOrderHistory() {
+        List<AdminOrderSummaryDto> history = orderService.getAdminUserOrderHistory();
+        return ResponseEntity.ok(history);
+
     }
 
 }
