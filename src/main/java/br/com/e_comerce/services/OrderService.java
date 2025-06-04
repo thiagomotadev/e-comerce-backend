@@ -80,7 +80,7 @@ public class OrderService {
                                 .createdAt(LocalDateTime.now())
                                 .total(total)
                                 .paymentMethod(dto.getPaymentMethod())
-                                .user(user)
+                                //.user(user)
                                 .items(orderItems) // associa os itens
                                 .build();
 
@@ -114,7 +114,7 @@ public class OrderService {
          */
         public List<OrderSummaryDto> getUserOrderHistory() {
                 // Obtém o usuário autenticado
-                User user = authSerice.getAuthenticatedUser();
+               User user = authSerice.getAuthenticatedUser();
 
                 // Busca todos os pedidos feitos por esse usuário
                 List<Order> orders = orderRepository.findByUser(user);
