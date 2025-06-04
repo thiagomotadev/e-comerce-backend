@@ -4,6 +4,7 @@ import br.com.e_comerce.dto.*;
 import br.com.e_comerce.entities.Order;
 import br.com.e_comerce.entities.OrderItem;
 import br.com.e_comerce.entities.Product;
+import br.com.e_comerce.entities.enums.OrderStatus;
 import br.com.e_comerce.entities.user.User;
 import br.com.e_comerce.repositories.OrderRepository;
 import br.com.e_comerce.repositories.ProductRepository;
@@ -155,4 +156,22 @@ public class OrderService {
                         items
                 );
         }
+        public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
+                User currentUser = authSerice.getAuthenticatedUser();
+
+                // Verifica se é admin
+                if (!"ADMIN".equals(currentUser.getRole().name())) {
+                        throw new RuntimeException("Apenas administradores podem alterar o status do pedido.");
+                }
+
+                // Busca o pedido
+                Order order = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new RuntimeException("Pedido não encontrado: ID " + orderId));
+
+                // Atualiza e salva
+                order.setStatus(newStatus);
+                orderRepository.save(order);
+        }
+
+
 }
