@@ -1,9 +1,6 @@
 package br.com.e_comerce.controllers;
 
-import br.com.e_comerce.dto.AdminOrderSummaryDto;
-import br.com.e_comerce.dto.CreateOrderRequestDto;
-import br.com.e_comerce.dto.OrderResponseDto;
-import br.com.e_comerce.dto.OrderSummaryDto;
+import br.com.e_comerce.dto.*;
 import br.com.e_comerce.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +46,11 @@ public class OrderController {
         List<AdminOrderSummaryDto> history = orderService.getAdminUserOrderHistory();
         return ResponseEntity.ok(history);
 
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDetailDto> getOrderDetail(@PathVariable Long id) {
+        OrderDetailDto orderDetail = orderService.getOrderById(id);
+        return ResponseEntity.ok(orderDetail);
     }
 
 }

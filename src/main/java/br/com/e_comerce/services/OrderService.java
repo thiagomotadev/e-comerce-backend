@@ -1,11 +1,6 @@
 package br.com.e_comerce.services;
 
-import br.com.e_comerce.dto.AdminOrderSummaryDto;
-import br.com.e_comerce.dto.CreateOrderRequestDto;
-import br.com.e_comerce.dto.OrderItemRequestDto;
-import br.com.e_comerce.dto.OrderItemResponseDto;
-import br.com.e_comerce.dto.OrderResponseDto;
-import br.com.e_comerce.dto.OrderSummaryDto;
+import br.com.e_comerce.dto.*;
 import br.com.e_comerce.entities.Order;
 import br.com.e_comerce.entities.OrderItem;
 import br.com.e_comerce.entities.Product;
@@ -34,112 +29,92 @@ public class OrderService {
 
         /**
          * Cria um novo pedido com base nos itens enviados pelo front-end.
-         * Realiza validações, monta os itens, calcula o total e persiste o pedido no
-         * banco.
-         *
-         * @param dto DTO contendo os itens e método de pagamento
-         * @return DTO com resumo do pedido criado
          */
         public OrderResponseDto createOrder(CreateOrderRequestDto dto) {
-                // Obtém o usuário autenticado (requer login)
                 User user = authSerice.getAuthenticatedUser();
 
                 List<OrderItem> orderItems = new ArrayList<>();
                 BigDecimal total = BigDecimal.ZERO;
 
-                // Processa cada item enviado no DTO
                 for (OrderItemRequestDto itemDto : dto.getItems()) {
-                        // Valida a quantidade
                         if (itemDto.getQuantity() <= 0) {
-                                throw new IllegalArgumentException(
-                                                "Quantidade deve ser maior que zero para o produto ID "
-                                                                + itemDto.getProductId());
+                                throw new IllegalArgumentException("Quantidade inválida para o produto ID " + itemDto.getProductId());
                         }
 
-                        // Busca o produto pelo ID
                         Product product = productRepository.findById(itemDto.getProductId())
-                                        .orElseThrow(() -> new RuntimeException(
-                                                        "Produto não encontrado: ID " + itemDto.getProductId()));
+                                .orElseThrow(() -> new RuntimeException("Produto não encontrado: ID " + itemDto.getProductId()));
 
-                        // Calcula o subtotal do item
                         BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(itemDto.getQuantity()));
                         total = total.add(itemTotal);
 
-                        // Cria um item de pedido (OrderItem)
                         OrderItem orderItem = OrderItem.builder()
-                                        .product(product)
-                                        .quantity(itemDto.getQuantity())
-                                        .price(product.getPrice())
-                                        .build();
+                                .product(product)
+                                .quantity(itemDto.getQuantity())
+                                .price(product.getPrice())
+                                .build();
 
                         orderItems.add(orderItem);
                 }
 
-                // Cria a entidade do pedido principal (Order)
                 Order order = Order.builder()
-                                .createdAt(LocalDateTime.now())
-                                .total(total)
-                                .paymentMethod(dto.getPaymentMethod())
-                                //.user(user)
-                                .items(orderItems) // associa os itens
-                                .build();
+                        .createdAt(LocalDateTime.now())
+                        .total(total)
+                        .paymentMethod(dto.getPaymentMethod())
+                        .user(user) //  Importante para evitar NullPointerException depois
+                        .items(orderItems)
+                        .build();
 
-                // Associa cada item ao pedido principal (bidirecional)
-                Order finalOrder = order;
-                orderItems.forEach(item -> item.setOrder(finalOrder));
+                // Associa os itens ao pedido
+                for (OrderItem item : order.getItems()) {
+                    item.setOrder(order);
+                }
 
-                // Salva no banco (cascata salva também os itens)
                 order = orderRepository.save(order);
 
-                // Converte os itens para DTO de resposta
                 List<OrderItemResponseDto> responseItems = orderItems.stream()
-                                .map(item -> new OrderItemResponseDto(
-                                                item.getProduct().getName(),
-                                                item.getPrice(),
-                                                item.getQuantity()))
-                                .toList();
+                        .map(item -> new OrderItemResponseDto(
+                                item.getProduct().getName(),
+                                item.getPrice(),
+                                item.getQuantity()))
+                        .toList();
 
-                // Retorna o resumo do pedido
                 return new OrderResponseDto(
-                                order.getId(),
-                                order.getCreatedAt(),
-                                order.getTotal(),
-                                responseItems);
+                        order.getId(),
+                        order.getCreatedAt(),
+                        order.getTotal(),
+                        responseItems
+                );
         }
 
         /**
          * Retorna o histórico de pedidos do usuário autenticado.
-         * 
-         * @return Lista de pedidos com dados resumidos (id, data, total)
          */
         public List<OrderSummaryDto> getUserOrderHistory() {
-                // Obtém o usuário autenticado
-               User user = authSerice.getAuthenticatedUser();
-
-                // Busca todos os pedidos feitos por esse usuário
+                User user = authSerice.getAuthenticatedUser();
                 List<Order> orders = orderRepository.findByUser(user);
 
-                // Mapeia os pedidos para DTOs de resumo
                 return orders.stream()
-                                .map(order -> new OrderSummaryDto(
-                                                order.getId(),
-                                                order.getCreatedAt(),
-                                                order.getTotal()))
-                                .toList();
+                        .map(order -> new OrderSummaryDto(
+                                order.getId(),
+                                order.getCreatedAt(),
+                                order.getTotal()))
+                        .toList();
         }
 
+        /**
+         * Retorna o histórico de pedidos de todos os usuários (admin).
+         */
         public List<AdminOrderSummaryDto> getAdminUserOrderHistory() {
-                List<Order> orders = this.orderRepository.findAll();
+                List<Order> orders = orderRepository.findAll();
 
                 List<AdminOrderSummaryDto> ordersSumary = new ArrayList<>();
-
                 for (Order order : orders) {
                         var orderSumary = new AdminOrderSummaryDto(
-                                        order.getId(),
-                                        order.getUser(),
-                                        order.getTotal(),
-                                        order.getStatus(),
-                                        order.getCreatedAt());
+                                order.getId(),
+                                order.getUser(),
+                                order.getTotal(),
+                                order.getStatus(),
+                                order.getCreatedAt());
 
                         ordersSumary.add(orderSumary);
                 }
@@ -147,4 +122,37 @@ public class OrderService {
                 return ordersSumary;
         }
 
+        /**
+         * Retorna os detalhes de um pedido, se o usuário for dono ou admin.
+         */
+        public OrderDetailDto getOrderById(Long orderId) {
+                User currentUser = authSerice.getAuthenticatedUser();
+
+                // Usa JOIN FETCH para garantir que order.getUser() não seja null
+                Order order = orderRepository.findByIdWithUser(orderId)
+                        .orElseThrow(() -> new RuntimeException("Pedido não encontrado: ID " + orderId));
+
+                boolean isOwner = order.getUser().getId().equals(currentUser.getId());
+                boolean isAdmin = currentUser.getRole().name().equals("ADMIN");
+
+                if (!isOwner && !isAdmin) {
+                        throw new RuntimeException("Acesso negado a este pedido.");
+                }
+
+                List<OrderItemResponseDto> items = order.getItems().stream()
+                        .map(item -> new OrderItemResponseDto(
+                                item.getProduct().getName(),
+                                item.getPrice(),
+                                item.getQuantity()))
+                        .toList();
+
+                return new OrderDetailDto(
+                        order.getId(),
+                        order.getCreatedAt(),
+                        order.getTotal(),
+                        order.getStatus(),
+                        order.getPaymentMethod(),
+                        items
+                );
+        }
 }
