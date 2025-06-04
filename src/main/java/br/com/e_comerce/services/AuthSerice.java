@@ -1,6 +1,7 @@
 package br.com.e_comerce.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import br.com.e_comerce.dto.LoginDto;
 import br.com.e_comerce.dto.RegisterUserDto;
@@ -44,6 +46,13 @@ public class AuthSerice {
             throw new RuntimeException("Domínio de e-mail inválido. Verifique se escreveu corretamente.");
         }
 
+        Boolean userExists = this.userRepository.existsByEmail(request.email());
+
+        if(userExists) {
+             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já cadastrado");
+        }
+
+        
         String hashedPassword = passwordEncoder.encode(request.password());
 
         var user = new User(
