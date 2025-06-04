@@ -13,9 +13,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class AdminOrderSummaryDto {
-    Long id;
-    User user;
-    BigDecimal total;
-    OrderStatus status;
-    LocalDateTime data;
+
+    private Long id; // ID do pedido
+    private User user; // Usuário que fez o pedido
+    private BigDecimal total; // Valor total
+    private OrderStatus status; // Status do pedido
+    private LocalDateTime createdAt; // Data de criação
 }
