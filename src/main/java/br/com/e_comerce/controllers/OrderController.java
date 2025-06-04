@@ -52,5 +52,11 @@ public class OrderController {
         OrderDetailDto orderDetail = orderService.getOrderById(id);
         return ResponseEntity.ok(orderDetail);
     }
+    @PatchMapping("/admin/{orderId}/status")
+    public ResponseEntity<String> updateOrderStatus(@PathVariable Long orderId,
+                                                    @RequestBody @Valid UpdateOrderStatusDto dto) {
+        orderService.updateOrderStatus(orderId, dto.getStatus());
+        return ResponseEntity.ok("Status do pedido atualizado com sucesso.");
+    }
 
 }
