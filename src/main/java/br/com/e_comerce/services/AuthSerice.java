@@ -1,17 +1,21 @@
 package br.com.e_comerce.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import br.com.e_comerce.dto.LoginDto;
 import br.com.e_comerce.dto.RegisterUserDto;
 import br.com.e_comerce.dto.ResponseUserDto;
 import br.com.e_comerce.entities.enums.Role;
 import br.com.e_comerce.entities.user.User;
 import br.com.e_comerce.repositories.UserRepository;
-import br.com.e_comerce.security.CustomUserDetails;
+import br.com.e_comerce.security.JwtService;
 
 import java.util.Arrays;
 
@@ -23,6 +27,12 @@ public class AuthSerice {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    JwtService jwtService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     public ResponseUserDto register(RegisterUserDto request) {
 
@@ -62,7 +72,23 @@ public class AuthSerice {
 
     public User getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-        return customUserDetails.getUser();
+        String email = auth.getName(); // Spring pega do UserDetails.getUsername()
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    }
+
+    public String login(LoginDto request) {
+        try {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    request.email(), request.password());
+
+            authenticationManager.authenticate(authenticationToken);
+
+            String token = jwtService.generateToken(request.email());
+            return token;
+
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("Email ou senha inválidos");
+        }
     }
 }
