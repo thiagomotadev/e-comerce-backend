@@ -80,7 +80,7 @@ public class OrderService {
                                 .createdAt(LocalDateTime.now())
                                 .total(total)
                                 .paymentMethod(dto.getPaymentMethod())
-                                //.user(user)
+                                .user(user)
                                 .items(orderItems) // associa os itens
                                 .build();
 

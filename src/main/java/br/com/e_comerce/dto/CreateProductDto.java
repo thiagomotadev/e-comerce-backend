@@ -28,4 +28,7 @@ public class CreateProductDto {
 
     @NotNull(message = "A categoria é obrigatória")
     private Long categoryId;
+
+    @NotBlank(message = "URL da imagem é obrigatória")
+    private String imageUrl;
 }

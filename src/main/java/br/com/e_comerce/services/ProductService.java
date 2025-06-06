@@ -42,6 +42,7 @@ public class ProductService {
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
         product.setCategory(category);
+        product.setImageUrl(dto.getImageUrl());
 
         // Salvar no banco
         product = productRepository.save(product);
@@ -53,9 +54,10 @@ public class ProductService {
                 product.getDescription(),
                 product.getPrice(),
                 product.getStock(),
-                product.getCategory().getName()
-        );
+                product.getCategory().getName(),
+                product.getImageUrl());
     }
+
     public List<ResponseProductDto> getAllProducts() {
         List<Product> products = productRepository.findAll();
 
@@ -66,8 +68,8 @@ public class ProductService {
                         p.getDescription(),
                         p.getPrice(),
                         p.getStock(),
-                        p.getCategory().getName()
-                ))
+                        p.getCategory().getName(),
+                        p.getImageUrl()))
                 .collect(Collectors.toList());
     }
     // Outros métodos (ex: buscar por categoria)
