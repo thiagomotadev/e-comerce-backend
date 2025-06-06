@@ -39,8 +39,9 @@ public class SecurityConfig {
                                                                                         // admin
                         .requestMatchers(HttpMethod.GET, "/products").permitAll() // Libera GET /products para todos
                         .requestMatchers(HttpMethod.POST, "/orders").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/orders/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/orders/admin/summary").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/orders/**").authenticated()
+
 
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
