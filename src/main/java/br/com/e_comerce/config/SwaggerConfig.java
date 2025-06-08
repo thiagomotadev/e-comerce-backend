@@ -21,7 +21,7 @@ public class SwaggerConfig {
         boolean isProd = System.getenv("ENV") != null && System.getenv("ENV").equals("production");
 
         String baseUrl = isProd
-                ? "https://seu-dominio-https.com"
+                ? "https://e-comerce-backend-production.up.railway.app"
                 : "http://localhost:8080";
 
         return new OpenAPI()
