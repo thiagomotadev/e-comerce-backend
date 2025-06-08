@@ -12,6 +12,9 @@ COPY .mvn .mvn
 # Copia sua pasta src (código fonte) para dentro do container
 COPY src ./src
 
+# Dá permissão de execução para o script mvnw (resolve o erro 126)
+RUN chmod +x mvnw
+
 # Roda o comando para compilar seu projeto e gerar o arquivo .jar (pulando os testes)
 RUN ./mvnw clean package -DskipTests
 
