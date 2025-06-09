@@ -29,4 +29,18 @@ public class ProductController {
         var products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
+
+    @GetMapping("/id/{productId}")
+    public ResponseEntity<ResponseProductDto> getProductById(
+        @PathVariable("productId") Long productId) {
+        var product = productService.findById(productId);
+        return ResponseEntity.ok(product);
+    }
+
+     @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<ResponseProductDto>> getProductByCategory(
+        @PathVariable("categoryId") Long categoryId) {
+        var product = productService.findByCaregory(categoryId);
+        return ResponseEntity.ok(product);
+    }
 }

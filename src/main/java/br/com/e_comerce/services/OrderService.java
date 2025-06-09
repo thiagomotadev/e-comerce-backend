@@ -63,6 +63,7 @@ public class OrderService {
                                 .paymentMethod(dto.getPaymentMethod())
                                 .user(user)
                                 .items(orderItems) // associa os itens
+                                .status(OrderStatus.PENDING)
                                 .build();
 
                 // Associa os itens ao pedido
@@ -83,6 +84,7 @@ public class OrderService {
                         order.getId(),
                         order.getCreatedAt(),
                         order.getTotal(),
+                        order.getStatus(),
                         responseItems
                 );
         }

@@ -9,7 +9,9 @@ import br.com.e_comerce.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,4 +75,43 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
     // Outros métodos (ex: buscar por categoria)
+
+    public ResponseProductDto findById(Long productId) {
+        Product product = this.productRepository.findById(productId)
+                .orElseThrow(() -> new NoSuchElementException("Produto com ID " + productId + " não encontrado."));
+
+        return new ResponseProductDto(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getStock(),
+                product.getDescription(),
+                product.getImageUrl());
+    }
+
+    public List<ResponseProductDto> findByCaregory(Long categoryId) {
+        Category category = this.categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new NoSuchElementException("Caregoria com ID " + categoryId + " não encontrada."));
+
+        List<Product> products = this.productRepository.findByCategoryId(categoryId);
+
+        List<ResponseProductDto> response = new ArrayList<>();
+
+        for (Product product : products) {
+
+            ResponseProductDto responseProductDto = new ResponseProductDto(
+                    product.getId(),
+                    product.getName(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getStock(),
+                    category.getName(),
+                    product.getImageUrl());
+
+            response.add(responseProductDto);
+        }
+
+        return response;
+    }
 }
